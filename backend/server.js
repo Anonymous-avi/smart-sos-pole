@@ -1,6 +1,8 @@
+
 const express = require("express");
 const cors = require("cors");
 const nodemailer = require("nodemailer");
+const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
 
 require("dotenv").config();
 
@@ -16,25 +18,38 @@ app.get("/", (_req, res) => {
 	res.status(200).send("SOS Smart Pole Backend Running Successfully");
 });
 
-app.get("/api/sensors", (_req, res) => {
-	const temperature = Number((Math.random() * (38 - 24) + 24).toFixed(1));
-	const humidity = Number((Math.random() * (80 - 40) + 40).toFixed(1));
-	const ldr = Math.random() > 0.5 ? "Day" : "Night";
-	const flame = Math.random() > 0.85 ? "Fire Detected" : "Safe";
-	const touch = sosActive || Math.random() > 0.9 ? "SOS Pressed" : "Safe";
-	const buzzer = touch === "SOS Pressed" ? "ON" : "OFF";
+app.get("/api/sensors", async (_req, res) => {
+       const temperature = Number((Math.random() * (38 - 24) + 24).toFixed(1));
+       const humidity = Number((Math.random() * (80 - 40) + 40).toFixed(1));
+       const ldr = Math.random() > 0.5 ? "Day" : "Night";
+       const flame = Math.random() > 0.85 ? "Fire Detected" : "Safe";
+       const touch = sosActive || Math.random() > 0.9 ? "SOS Pressed" : "Safe";
+       const buzzer = touch === "SOS Pressed" ? "ON" : "OFF";
 
-	const payload = {
-		temperature,
-		humidity,
-		ldr,
-		flame,
-		touch,
-		gps: "28.6139, 77.2090",
-		buzzer,
-	};
+       let risk = null;
+	       try {
+		       const mlUrl = `https://ml-environment-risk-api.onrender.com/predict?temperature=${temperature}&humidity=${humidity}`;
+		       const mlRes = await fetch(mlUrl);
+		       if (mlRes.ok) {
+			       const mlData = await mlRes.json();
+			       risk = mlData.risk ?? mlData.prediction ?? null;
+		       }
+	       } catch (e) {
+		       risk = null;
+	       }
 
-	res.status(200).json(payload);
+       const payload = {
+	       temperature,
+	       humidity,
+	       ldr,
+	       flame,
+	       touch,
+	       gps: "28.6139, 77.2090",
+	       buzzer,
+	       risk,
+       };
+
+       res.status(200).json(payload);
 });
 
 app.post("/api/sos", (_req, res) => {
