@@ -1,119 +1,118 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>SOS Smart Pole Dashboard</title>
-	<link rel="preconnect" href="https://fonts.googleapis.com">
-	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-	<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Sora:wght@500;600;700&display=swap" rel="stylesheet">
-	<link rel="stylesheet" href="dashboard.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SOS Smart Pole Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Sora:wght@500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="dashboard.css">
 </head>
 <body>
-	<header class="dash-header">
-		<div class="container topbar">
-			<a class="brand" href="index.html" aria-label="Go to homepage">
-				<span class="brand-mark">SOS</span>
-				<span class="brand-text">Smart Pole</span>
-			</a>
-			<div class="header-actions">
-				<div class="nav-links">
-					<a href="index.html">Home</a>
-					<a class="active" href="dashboard.html">Dashboard</a>
-					<a href="women-safety.html">Women Safety</a>
-					<a href="lighting.html">Lighting</a>
-					<a href="fire-alert.html">Fire</a>
-					<a href="weather.html">Weather</a>
-					<a href="gps-tracking.html">GPS</a>
-					<a href="about.html">About</a>
-					<a href="contact.html">Contact</a>
-				</div>
-				<span class="status-pill" id="systemStatus">System Stable</span>
-			</div>
-		</div>
-	</header>
+    <header class="dash-header">
+        <div class="container topbar">
+            <a class="brand" href="index.html" aria-label="Go to homepage">
+                <span class="brand-mark">SOS</span>
+                <span class="brand-text">Smart Pole</span>
+            </a>
+            <div class="header-actions">
+                <div class="nav-links">
+                    <a href="index.html">Home</a>
+                    <a class="active" href="dashboard.html">Dashboard</a>
+                    <a href="women-safety.html">Women Safety</a>
+                    <a href="lighting.html">Lighting</a>
+                    <a href="fire-alert.html">Fire</a>
+                    <a href="weather.html">Weather</a>
+                    <a href="gps-tracking.html">GPS</a>
+                    <a href="about.html">About</a>
+                    <a href="contact.html">Contact</a>
+                </div>
+                <span class="status-pill" id="systemStatus">System Stable</span>
+            </div>
+        </div>
+    </header>
 
-	<main class="container dash-main">
-		<section class="sensor-grid">
-			<article class="sensor-card">
-				<p class="sensor-title">Temperature</p>
-				<p class="sensor-value" id="temperatureValue">0 deg C</p>
-				<p class="sensor-foot">Ambient temperature</p>
-			</article>
+    <main class="container dash-main">
+        <section class="sensor-grid">
+            <article class="sensor-card">
+                <p class="sensor-title">Temperature</p>
+                <p class="sensor-value" id="temperatureValue">0 deg C</p>
+                <p class="sensor-foot">Ambient temperature</p>
+            </article>
 
-			<article class="sensor-card">
-				<p class="sensor-title">Humidity</p>
-				<p class="sensor-value" id="humidityValue">0%</p>
-				<p class="sensor-foot">Air moisture level</p>
-			</article>
+            <article class="sensor-card">
+                <p class="sensor-title">Humidity</p>
+                <p class="sensor-value" id="humidityValue">0%</p>
+                <p class="sensor-foot">Air moisture level</p>
+            </article>
 
-			<article class="sensor-card">
-				<p class="sensor-title">LDR Status</p>
-				<p class="sensor-value" id="ldrValue">Unknown</p>
-				<p class="sensor-foot">Lighting condition</p>
-			</article>
+            <article class="sensor-card">
+                <p class="sensor-title">LDR Status</p>
+                <p class="sensor-value" id="ldrValue">Unknown</p>
+                <p class="sensor-foot">Lighting condition</p>
+            </article>
 
-			<article class="sensor-card">
-				<p class="sensor-title">Flame Sensor</p>
-				<p class="sensor-value" id="flameValue">No Flame</p>
-				<p class="sensor-foot">Fire threat detection</p>
-			</article>
+            <article class="sensor-card">
+                <p class="sensor-title">Flame Sensor</p>
+                <p class="sensor-value" id="flameValue">No Flame</p>
+                <p class="sensor-foot">Fire threat detection</p>
+            </article>
 
-			<article class="sensor-card">
-				<p class="sensor-title">Touch Sensor SOS</p>
-				<p class="sensor-value" id="touchValue">Idle</p>
-				<p class="sensor-foot">Emergency touch input</p>
-			</article>
+            <article class="sensor-card">
+                <p class="sensor-title">Touch Sensor SOS</p>
+                <p class="sensor-value" id="touchValue">Idle</p>
+                <p class="sensor-foot">Emergency touch input</p>
+            </article>
 
-			<article class="sensor-card">
-				<p class="sensor-title">GPS Location</p>
-				<p class="sensor-value gps" id="gpsValue">0.00000, 0.00000</p>
-				<p class="sensor-foot">Pole geolocation</p>
-			</article>
+            <article class="sensor-card camera-card">
+                <p class="sensor-title">Live Camera Feed</p>
+                <div class="camera-stream-container">
+                    <span class="live-tag">LIVE</span>
+                    <div class="stream-fallback">Connecting to Stream...</div>
+                </div>
+                <p class="sensor-foot">Security surveillance</p>
+            </article>
 
-			<article class="sensor-card">
-				<p class="sensor-title">Buzzer</p>
-				<p class="sensor-value" id="buzzerValue">OFF</p>
-				<p class="sensor-foot">Alarm output status</p>
-			</article>
-		</section>
+            <article class="sensor-card">
+                <p class="sensor-title">Buzzer</p>
+                <p class="sensor-value" id="buzzerValue">OFF</p>
+                <p class="sensor-foot">Alarm output status</p>
+            </article>
+        </section>
 
-		<section class="chart-grid">
-			<article class="panel">
-				<div class="panel-head">
-					<h2>Environment Trends</h2>
-					<p>Temperature and humidity over time</p>
-				</div>
-				<canvas id="environmentChart" aria-label="Environment trend chart" role="img"></canvas>
-			</article>
+        <section class="chart-grid">
+            <article class="panel">
+                <div class="panel-head">
+                    <h2>Environment Trends</h2>
+                    <p>Temperature and humidity over time</p>
+                </div>
+                <canvas id="environmentChart" aria-label="Environment trend chart" role="img"></canvas>
+            </article>
 
-			<article class="panel">
-				<div class="panel-head">
-					<h2>Safety Sensor State</h2>
-					<p>Live status of critical alert sensors</p>
-				</div>
-				<canvas id="safetyChart" aria-label="Safety sensor state chart" role="img"></canvas>
-			</article>
-		</section>
+            <article class="panel">
+                <div class="panel-head">
+                    <h2>Safety Sensor State</h2>
+                    <p>Live status of critical alert sensors</p>
+                </div>
+                <canvas id="safetyChart" aria-label="Safety sensor state chart" role="img"></canvas>
+            </article>
+        </section>
 
-		<section class="control-grid">
-			<article class="panel emergency-panel">
-				<h2>Emergency Control</h2>
-				<p>Trigger the SOS workflow for testing control-room response.</p>
-				<button id="emergencyBtn" class="emergency-btn" type="button">Trigger Emergency SOS</button>
-				<p id="emergencyNote" class="emergency-note">Emergency mode inactive.</p>
-			</article>
+        <section class="control-grid-full">
+            <article class="panel events-panel">
+                <div class="panel-head">
+                    <h2>Live Event Feed</h2>
+                    <p>Real-time system activity and security logs</p>
+                </div>
+                <ul id="eventLog" class="event-log">
+                    <li>Monitoring initialized.</li>
+                </ul>
+            </article>
+        </section>
+    </main>
 
-			<article class="panel events-panel">
-				<h2>Live Event Feed</h2>
-				<ul id="eventLog" class="event-log">
-					<li>Monitoring initialized.</li>
-				</ul>
-			</article>
-		</section>
-	</main>
-
-	<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-	<script src="dashboard.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="dashboard.js"></script>
 </body>
 </html>
