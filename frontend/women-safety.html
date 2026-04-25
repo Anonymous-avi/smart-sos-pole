@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Women Safety | SOS Smart Pole</title>
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Sora:wght@500;600;700&display=swap" rel="stylesheet">
+	<link rel="stylesheet" href="women-safety.css">
+</head>
+<body>
+	<header class="site-header">
+		<nav class="navbar container" aria-label="Women safety navigation">
+			<a class="brand" href="index.html" aria-label="Go to homepage">
+				<span class="brand-mark">SOS</span>
+				<span class="brand-text">Smart Pole</span>
+			</a>
+			<div class="nav-links">
+				<a href="index.html">Home</a>
+				<a href="dashboard.html">Dashboard</a>
+				<a class="active" href="women-safety.html">Women Safety</a>
+				<a href="lighting.html">Lighting</a>
+				<a href="fire-alert.html">Fire</a>
+				<a href="weather.html">Weather</a>
+				<a href="gps-tracking.html">GPS</a>
+				<a href="about.html">About</a>
+				<a href="contact.html">Contact</a>
+			</div>
+		</nav>
+	</header>
+
+	<main class="container page-main">
+		<section class="hero">
+			<div class="hero-copy reveal">
+				<p class="eyebrow">Women Safety Mode</p>
+				<h1>Faster emergency response for women in public spaces.</h1>
+				<p>
+					This SOS Smart Pole workflow activates alert transmission, buzzer signaling,
+					and live location sharing to control room operators in seconds.
+				</p>
+			</div>
+			<div class="hero-note reveal" role="note" aria-label="response promise">
+				<p class="hero-note-title">Average response pipeline</p>
+				<p class="hero-note-value">Under 3 seconds</p>
+			</div>
+		</section>
+
+		<section class="workflow reveal" aria-label="Emergency touch sensor workflow">
+			<div class="section-head">
+				<p class="eyebrow">Emergency Touch Sensor Workflow</p>
+				<h2>How SOS activation flows in real time</h2>
+			</div>
+			<ol class="workflow-list" id="workflowList">
+				<li data-step="1" class="pending">
+					<span class="step-dot"></span>
+					<div>
+						<h3>Touch sensor pressed</h3>
+						<p>The emergency touch sensor receives a panic trigger.</p>
+					</div>
+				</li>
+				<li data-step="2" class="pending">
+					<span class="step-dot"></span>
+					<div>
+						<h3>Alert sent to command center</h3>
+						<p>Central dashboard receives instant SOS notification.</p>
+					</div>
+				</li>
+				<li data-step="3" class="pending">
+					<span class="step-dot"></span>
+					<div>
+						<h3>Buzzer activated</h3>
+						<p>On-site buzzer turns on to draw immediate public attention.</p>
+					</div>
+				</li>
+				<li data-step="4" class="pending">
+					<span class="step-dot"></span>
+					<div>
+						<h3>GPS shared</h3>
+						<p>Live coordinates are shared for quick rescue dispatch.</p>
+					</div>
+				</li>
+			</ol>
+		</section>
+
+		<section class="sos-panel reveal" aria-label="SOS action panel">
+			<div class="panel-copy">
+				<h2>Emergency Simulation</h2>
+				<p>Press the SOS button to simulate a women-safety emergency sequence.</p>
+			</div>
+			<button id="sosButton" class="sos-button" type="button" aria-live="polite">SOS</button>
+			<div class="status-grid" id="statusGrid" aria-live="polite">
+				<div class="status-chip" id="alertStatus">Alert not sent</div>
+				<div class="status-chip" id="buzzerStatus">Buzzer inactive</div>
+				<div class="status-chip" id="gpsStatus">GPS not shared</div>
+			</div>
+		</section>
+	</main>
+
+	<footer class="site-footer">
+		<div class="container footer-wrap">
+			<p>2026 SOS Smart Pole. Women safety first in every smart zone.</p>
+			<div class="footer-links">
+				<a href="index.html">Home</a>
+				<a href="dashboard.html">Dashboard</a>
+			</div>
+		</div>
+	</footer>
+
+	<script src="women-safety.js"></script>
+</body>
+</html>

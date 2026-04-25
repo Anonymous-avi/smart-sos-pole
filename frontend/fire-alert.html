@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Fire Detection | SOS Smart Pole</title>
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Sora:wght@500;600;700&display=swap" rel="stylesheet">
+	<link rel="stylesheet" href="fire-alert.css">
+</head>
+<body>
+	<header class="site-header">
+		<nav class="navbar container" aria-label="Fire detection navigation">
+			<a class="brand" href="index.html" aria-label="Go to homepage">
+				<span class="brand-mark">SOS</span>
+				<span class="brand-text">Smart Pole</span>
+			</a>
+			<div class="nav-links">
+				<a href="index.html">Home</a>
+				<a href="dashboard.html">Dashboard</a>
+				<a href="women-safety.html">Women Safety</a>
+				<a href="lighting.html">Lighting</a>
+				<a class="active" href="fire-alert.html">Fire</a>
+				<a href="weather.html">Weather</a>
+				<a href="gps-tracking.html">GPS</a>
+				<a href="about.html">About</a>
+				<a href="contact.html">Contact</a>
+			</div>
+		</nav>
+	</header>
+
+	<main class="container page-main">
+		<section class="hero reveal">
+			<p class="eyebrow">Flame Sensor Monitoring</p>
+			<h1>Smart fire detection with instant visual warning and rapid response triggers.</h1>
+			<p>
+				The flame sensor continuously watches for fire signatures. When fire is detected,
+				the system switches to warning mode, raises alerts, and activates emergency response flow.
+			</p>
+		</section>
+
+		<section class="panel system-panel reveal">
+			<div class="panel-head">
+				<h2>Fire Sensor State</h2>
+				<p id="modeLabel" class="mode safe">SAFE MODE</p>
+			</div>
+
+			<div id="warningZone" class="warning-zone safe" aria-live="polite">
+				<div class="sensor-dot"></div>
+				<div>
+					<h3 id="statusTitle">No Fire Detected</h3>
+					<p id="statusText">Environment stable. Flame sensor reading is within safe threshold.</p>
+				</div>
+			</div>
+
+			<div class="actions">
+				<button id="safeBtn" class="action-btn" type="button">Set Safe Mode</button>
+				<button id="fireBtn" class="action-btn danger" type="button">Trigger Fire Detected</button>
+			</div>
+		</section>
+
+		<section class="panel explain-panel reveal">
+			<h2>Flame Sensor Workflow</h2>
+			<ol class="steps" id="stepsList">
+				<li class="pending">Flame sensor scans environment continuously.</li>
+				<li class="pending">Abnormal heat/flame signature is detected.</li>
+				<li class="pending">Warning mode activates with red flashing alert.</li>
+				<li class="pending">Control room receives emergency fire notification.</li>
+			</ol>
+		</section>
+	</main>
+
+	<footer class="site-footer">
+		<div class="container footer-wrap">
+			<p>2026 SOS Smart Pole. Intelligent fire alert and response safety.</p>
+			<div class="footer-links">
+				<a href="index.html">Home</a>
+				<a href="dashboard.html">Dashboard</a>
+			</div>
+		</div>
+	</footer>
+
+	<script src="fire-alert.js"></script>
+</body>
+</html>

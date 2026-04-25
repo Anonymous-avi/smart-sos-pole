@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>About Project | SOS Smart Pole</title>
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Sora:wght@500;600;700&display=swap" rel="stylesheet">
+	<link rel="stylesheet" href="about.css">
+</head>
+<body>
+	<header class="site-header">
+		<nav class="navbar container" aria-label="About page navigation">
+			<a class="brand" href="index.html" aria-label="Go to homepage">
+				<span class="brand-mark">SOS</span>
+				<span class="brand-text">Smart Pole</span>
+			</a>
+			<div class="nav-links">
+				<a href="index.html">Home</a>
+				<a href="dashboard.html">Dashboard</a>
+				<a href="women-safety.html">Women Safety</a>
+				<a href="lighting.html">Lighting</a>
+				<a href="fire-alert.html">Fire</a>
+				<a href="weather.html">Weather</a>
+				<a href="gps-tracking.html">GPS</a>
+				<a class="active" href="about.html">About</a>
+				<a href="contact.html">Contact</a>
+			</div>
+		</nav>
+	</header>
+
+	<main class="container page-main">
+		<section class="hero reveal">
+			<p class="eyebrow">Project Overview</p>
+			<h1>SOS Smart Pole: Integrated public safety and smart-city response platform.</h1>
+			<p>
+				SOS Smart Pole is designed to provide immediate emergency assistance,
+				continuous environment monitoring, and centralized dashboard visibility for
+				authorities managing urban safety infrastructure.
+			</p>
+		</section>
+
+		<section class="grid-two">
+			<article class="panel reveal">
+				<h2>Project Objective</h2>
+				<p>
+					Build a reliable, sensor-driven smart pole system that detects high-risk events,
+					enables one-touch SOS activation, and provides real-time situational data for
+					faster emergency response in public spaces.
+				</p>
+			</article>
+
+			<article class="panel reveal">
+				<h2>Problem It Solves</h2>
+				<ul>
+					<li>Delayed emergency reporting in critical incidents</li>
+					<li>Poor visibility in unsafe and low-light zones</li>
+					<li>Lack of unified real-time monitoring for authorities</li>
+					<li>Insufficient rapid-response support for women safety</li>
+				</ul>
+			</article>
+		</section>
+
+		<section class="panel reveal">
+			<h2>Components Used</h2>
+			<div class="component-grid">
+				<article class="component-card">
+					<h3>Frontend</h3>
+					<ul>
+						<li>HTML5 for page structure</li>
+						<li>CSS3 for premium responsive design</li>
+						<li>JavaScript for dynamic updates and animations</li>
+						<li>Chart.js for sensor visualization</li>
+					</ul>
+				</article>
+				<article class="component-card">
+					<h3>Backend</h3>
+					<ul>
+						<li>Node.js runtime</li>
+						<li>Express.js API server</li>
+						<li>CORS for frontend-backend communication</li>
+						<li>REST APIs for sensors and SOS triggering</li>
+					</ul>
+				</article>
+				<article class="component-card">
+					<h3>Core Sensors and Features</h3>
+					<ul>
+						<li>Temperature and humidity monitoring</li>
+						<li>LDR-based smart street lighting logic</li>
+						<li>Flame detection and fire alert workflow</li>
+						<li>Touch sensor SOS and buzzer activation</li>
+						<li>GPS location tracking and mapping</li>
+					</ul>
+				</article>
+			</div>
+		</section>
+
+		<section class="panel reveal">
+			<h2>Future Scope</h2>
+			<ul class="future-list">
+				<li>Integrate real hardware streams via MQTT/IoT gateway</li>
+				<li>Add WebSocket-based low-latency live telemetry</li>
+				<li>Deploy AI incident detection from video analytics</li>
+				<li>Enable multilingual voice assistance and emergency calling</li>
+				<li>Build role-based control center with alert escalation matrix</li>
+				<li>Introduce historical analytics for hotspot and pattern prediction</li>
+			</ul>
+		</section>
+	</main>
+
+	<footer class="site-footer">
+		<div class="container footer-wrap">
+			<p>2026 SOS Smart Pole. Safer cities through connected intelligence.</p>
+			<div class="footer-links">
+				<a href="index.html">Home</a>
+				<a href="dashboard.html">Dashboard</a>
+			</div>
+		</div>
+	</footer>
+
+	<script>
+		const revealItems = document.querySelectorAll('.reveal');
+		const observer = new IntersectionObserver((entries, obs) => {
+			entries.forEach((entry) => {
+				if (entry.isIntersecting) {
+					entry.target.classList.add('visible');
+					obs.unobserve(entry.target);
+				}
+			});
+		}, { threshold: 0.15 });
+		revealItems.forEach((item) => observer.observe(item));
+	</script>
+</body>
+</html>

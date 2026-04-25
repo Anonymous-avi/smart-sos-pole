@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Weather Monitoring | SOS Smart Pole</title>
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Sora:wght@500;600;700&display=swap" rel="stylesheet">
+	<link rel="stylesheet" href="weather.css">
+</head>
+<body>
+	<header class="site-header">
+		<nav class="navbar container" aria-label="Weather page navigation">
+			<a class="brand" href="index.html" aria-label="Go to homepage">
+				<span class="brand-mark">SOS</span>
+				<span class="brand-text">Smart Pole</span>
+			</a>
+			<div class="nav-links">
+				<a href="index.html">Home</a>
+				<a href="dashboard.html">Dashboard</a>
+				<a href="women-safety.html">Women Safety</a>
+				<a href="lighting.html">Lighting</a>
+				<a href="fire-alert.html">Fire</a>
+				<a class="active" href="weather.html">Weather</a>
+				<a href="gps-tracking.html">GPS</a>
+				<a href="about.html">About</a>
+				<a href="contact.html">Contact</a>
+			</div>
+		</nav>
+	</header>
+
+	<main class="container page-main">
+		<section class="hero reveal">
+			<p class="eyebrow">Environment Monitoring</p>
+			<h1>Live weather feed for smarter, safer public infrastructure.</h1>
+			<p>
+				This module pulls real-time temperature and humidity data from the SOS Smart Pole backend
+				to support safety analytics and responsive city operations.
+			</p>
+			<p id="connectionStatus" class="connection waiting">Connecting to backend API...</p>
+		</section>
+
+		<section class="weather-grid">
+			<article class="weather-card reveal">
+				<p class="label">Temperature</p>
+				<p id="temperatureValue" class="value">-- deg C</p>
+				<p id="temperatureNote" class="meta">Waiting for data</p>
+			</article>
+
+			<article class="weather-card reveal">
+				<p class="label">Humidity</p>
+				<p id="humidityValue" class="value">--%</p>
+				<p id="humidityNote" class="meta">Waiting for data</p>
+			</article>
+		</section>
+
+		<section class="panel reveal">
+			<h2>Latest Backend Snapshot</h2>
+			<p id="lastUpdated" class="updated">Last updated: --</p>
+			<ul id="eventLog" class="event-log">
+				<li>Weather monitoring initialized.</li>
+			</ul>
+		</section>
+	</main>
+
+	<footer class="site-footer">
+		<div class="container footer-wrap">
+			<p>2026 SOS Smart Pole. Real-time weather intelligence.</p>
+			<div class="footer-links">
+				<a href="index.html">Home</a>
+				<a href="dashboard.html">Dashboard</a>
+			</div>
+		</div>
+	</footer>
+
+	<script src="weather.js"></script>
+</body>
+</html>

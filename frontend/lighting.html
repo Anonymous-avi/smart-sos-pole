@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Smart Lighting | SOS Smart Pole</title>
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Sora:wght@500;600;700&display=swap" rel="stylesheet">
+	<link rel="stylesheet" href="lighting.css">
+</head>
+<body>
+	<header class="site-header">
+		<nav class="navbar container" aria-label="Lighting page navigation">
+			<a class="brand" href="index.html" aria-label="Go to homepage">
+				<span class="brand-mark">SOS</span>
+				<span class="brand-text">Smart Pole</span>
+			</a>
+			<div class="nav-links">
+				<a href="index.html">Home</a>
+				<a href="dashboard.html">Dashboard</a>
+				<a href="women-safety.html">Women Safety</a>
+				<a class="active" href="lighting.html">Lighting</a>
+				<a href="fire-alert.html">Fire</a>
+				<a href="weather.html">Weather</a>
+				<a href="gps-tracking.html">GPS</a>
+				<a href="about.html">About</a>
+				<a href="contact.html">Contact</a>
+			</div>
+		</nav>
+	</header>
+
+	<main class="container page-main">
+		<section class="hero reveal">
+			<p class="eyebrow">LDR Smart Street Light</p>
+			<h1>Automatic street lighting that responds to daylight conditions.</h1>
+			<p>
+				The LDR sensor continuously reads ambient light intensity. In bright daylight,
+				the street lamp remains OFF to save power. At low-light/night conditions,
+				the lamp turns ON automatically for safer roads and footpaths.
+			</p>
+		</section>
+
+		<section class="explain-grid">
+			<article class="panel reveal">
+				<h2>How It Works</h2>
+				<ol class="steps">
+					<li>LDR senses surrounding light level.</li>
+					<li>Controller compares reading with threshold.</li>
+					<li>Day mode: light remains OFF.</li>
+					<li>Night mode: light switches ON automatically.</li>
+				</ol>
+			</article>
+
+			<article class="panel demo reveal" aria-label="Day and night light animation">
+				<div class="demo-head">
+					<h2>Live Mode Demo</h2>
+					<p id="modeLabel" class="mode day">Day Mode: Light OFF</p>
+				</div>
+
+				<div id="scene" class="scene day" role="img" aria-label="Street light scene showing day and night modes">
+					<div class="sky-elements">
+						<div class="sun"></div>
+						<div class="moon"></div>
+					</div>
+					<div class="ground"></div>
+					<div class="pole"></div>
+					<div id="lampGlow" class="lamp-glow"></div>
+					<div class="lamp-head"></div>
+				</div>
+
+				<div class="controls">
+					<button id="dayBtn" class="mode-btn" type="button">Set Day</button>
+					<button id="nightBtn" class="mode-btn" type="button">Set Night</button>
+				</div>
+			</article>
+		</section>
+	</main>
+
+	<footer class="site-footer">
+		<div class="container footer-wrap">
+			<p>2026 SOS Smart Pole. Intelligent energy-efficient lighting.</p>
+			<div class="footer-links">
+				<a href="index.html">Home</a>
+				<a href="dashboard.html">Dashboard</a>
+			</div>
+		</div>
+	</footer>
+
+	<script src="lighting.js"></script>
+</body>
+</html>
