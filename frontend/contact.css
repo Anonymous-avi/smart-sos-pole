@@ -144,6 +144,24 @@ h1 {
 	font-size: clamp(1.65rem, 3.1vw, 2.5rem);
 	line-height: 1.12;
 	margin-bottom: 0.75rem;
+	display: inline-flex;
+	align-items: center;
+	gap: 0.55rem;
+}
+
+.heading-icon {
+	width: 36px;
+	height: 36px;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	border-radius: 50%;
+	border: 1px solid rgba(170, 208, 255, 0.42);
+	background: radial-gradient(circle at 35% 30%, rgba(160, 227, 255, 0.85), rgba(74, 139, 225, 0.35));
+	box-shadow: 0 0 18px rgba(114, 201, 255, 0.55);
+	font-size: 0.95rem;
+	color: #eaf4ff;
+	animation: pulseGlow 2.8s ease-in-out infinite;
 }
 
 h2 {
@@ -170,6 +188,21 @@ h2 {
 	font-weight: 700;
 	margin-top: 0.2rem;
 	margin-bottom: 0.35rem;
+	display: flex;
+	align-items: center;
+	gap: 0.52rem;
+}
+
+.college-icon {
+	width: 30px;
+	height: 30px;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	border-radius: 8px;
+	border: 1px solid rgba(170, 208, 255, 0.35);
+	background: rgba(42, 93, 166, 0.38);
+	color: #bde8ff;
 }
 
 .team-list {
@@ -181,6 +214,13 @@ h2 {
 
 .member-card {
 	padding: 0.85rem;
+	transition: transform 0.22s ease, border-color 0.22s ease, box-shadow 0.22s ease;
+}
+
+.member-card:hover {
+	transform: translateY(-3px);
+	border-color: rgba(158, 220, 255, 0.5);
+	box-shadow: 0 14px 30px rgba(0, 12, 35, 0.45), 0 0 0 1px rgba(140, 209, 255, 0.24);
 }
 
 .member-role {
@@ -190,6 +230,25 @@ h2 {
 .feedback-form {
 	display: grid;
 	gap: 0.45rem;
+}
+
+.field-wrap {
+	position: relative;
+}
+
+.field-icon {
+	position: absolute;
+	top: 50%;
+	left: 0.82rem;
+	transform: translateY(-50%);
+	font-size: 0.92rem;
+	color: #b6d8ff;
+	pointer-events: none;
+}
+
+.field-wrap-textarea .field-icon {
+	top: 0.9rem;
+	transform: none;
 }
 
 .feedback-form label {
@@ -206,6 +265,17 @@ h2 {
 	padding: 0.68rem 0.8rem;
 	border-radius: 0.7rem;
 	font: inherit;
+	width: 100%;
+}
+
+.field-wrap .feedback-form input,
+.field-wrap .feedback-form textarea {
+	padding-left: 2rem;
+}
+
+.field-wrap input,
+.field-wrap textarea {
+	padding-left: 2rem;
 }
 
 .feedback-form input::placeholder,
@@ -236,6 +306,12 @@ h2 {
 	transform: translateY(-2px);
 }
 
+.submit-btn:disabled {
+	opacity: 0.8;
+	cursor: not-allowed;
+	transform: none;
+}
+
 .form-message {
 	min-height: 1.2rem;
 	font-size: 0.88rem;
@@ -246,32 +322,54 @@ h2 {
 	color: var(--ok);
 }
 
-.social-row {
-	display: flex;
-	align-items: center;
-	gap: 0.65rem;
-	flex-wrap: wrap;
-	margin-top: 0.35rem;
+.why-contact-list {
+	grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
-.social-icon {
-	width: 44px;
-	height: 44px;
+.why-contact-card {
+	min-height: 138px;
+}
+
+.feedback-popup {
+	position: fixed;
+	right: 1rem;
+	bottom: 1rem;
+	z-index: 35;
 	display: inline-flex;
 	align-items: center;
-	justify-content: center;
-	text-decoration: none;
-	border-radius: 50%;
-	border: 1px solid rgba(166, 206, 255, 0.34);
-	background: rgba(33, 80, 145, 0.36);
-	color: #eef6ff;
-	font-size: 1rem;
-	transition: transform 0.18s ease, background 0.18s ease;
+	gap: 0.55rem;
+	max-width: min(92vw, 380px);
+	padding: 0.8rem 0.95rem;
+	border-radius: 0.85rem;
+	border: 1px solid rgba(166, 231, 198, 0.45);
+	background: rgba(14, 61, 94, 0.92);
+	box-shadow: 0 20px 40px rgba(0, 14, 35, 0.5);
+	color: #d9ffef;
+	font-size: 0.92rem;
+	backdrop-filter: blur(10px);
+	opacity: 0;
+	transform: translateY(12px);
+	pointer-events: none;
+	transition: opacity 0.25s ease, transform 0.25s ease;
 }
 
-.social-icon:hover {
-	transform: translateY(-2px);
-	background: rgba(33, 80, 145, 0.58);
+.feedback-popup.show {
+	opacity: 1;
+	transform: translateY(0);
+}
+
+.feedback-popup i {
+	color: #7ef8c8;
+}
+
+.feedback-popup.error {
+	border-color: rgba(255, 151, 151, 0.48);
+	background: rgba(87, 20, 34, 0.92);
+	color: #ffe2e2;
+}
+
+.feedback-popup.error i {
+	color: #ff9da7;
 }
 
 .site-footer {
@@ -324,9 +422,23 @@ h2 {
 	}
 }
 
+@keyframes pulseGlow {
+	0%,
+	100% {
+		box-shadow: 0 0 14px rgba(114, 201, 255, 0.42);
+	}
+	50% {
+		box-shadow: 0 0 24px rgba(124, 215, 255, 0.78);
+	}
+}
+
 @media (max-width: 860px) {
 	.grid-two,
 	.team-list {
+		grid-template-columns: 1fr;
+	}
+
+	.why-contact-list {
 		grid-template-columns: 1fr;
 	}
 }

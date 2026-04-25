@@ -3,7 +3,7 @@ const workflowItems = document.querySelectorAll("#workflowList li");
 const sosButton = document.getElementById("sosButton");
 const alertStatus = document.getElementById("alertStatus");
 const buzzerStatus = document.getElementById("buzzerStatus");
-const gpsStatus = document.getElementById("gpsStatus");
+const locationStatus = document.getElementById("locationStatus");
 
 let workflowRunning = false;
 
@@ -52,10 +52,10 @@ async function runWorkflow() {
 
 	alertStatus.textContent = "Alert not sent";
 	buzzerStatus.textContent = "Buzzer inactive";
-	gpsStatus.textContent = "GPS not shared";
+	locationStatus.textContent = "Location not shared";
 	alertStatus.classList.remove("ok");
 	buzzerStatus.classList.remove("ok");
-	gpsStatus.classList.remove("ok");
+	locationStatus.classList.remove("ok");
 
 	sosButton.classList.add("pulsing");
 	sosButton.disabled = true;
@@ -76,7 +76,7 @@ async function runWorkflow() {
 		}
 
 		if (index === 3) {
-			updateStatusChip(gpsStatus, "GPS shared: 28.6139, 77.2090");
+			updateStatusChip(locationStatus, "Location shared: 28.6139, 77.2090");
 		}
 	}
 
