@@ -24,7 +24,7 @@
 				<a href="lighting.html">Lighting</a>
 				<a href="fire-alert.html">Fire</a>
 				<a href="weather.html">Weather</a>
-				<a href="gps-tracking.html">GPS</a>
+				<a href="camera.html">Camera</a>
 				<a href="about.html">About</a>
 				<a class="active" href="contact.html">Contact</a>
 			</div>
@@ -34,22 +34,28 @@
 	<main class="container page-main">
 		<section class="hero reveal">
 			<p class="eyebrow">Contact & Team</p>
-			<h1>Connect with the SOS Smart Pole project team.</h1>
+			<h1>
+				<span class="heading-icon" aria-hidden="true"><i class="fa-solid fa-satellite-dish"></i></span>
+				Get in Touch with the SOS Smart Pole Team
+			</h1>
 			<p>
-				Reach out for collaboration, implementation support, or feedback.
-				We are continuously improving the platform for safer and smarter cities.
+				Contact us for project collaboration, deployment support, safety innovation ideas,
+				or feedback to improve women safety and smart city infrastructure.
 			</p>
 		</section>
 
 		<section class="grid-two">
 			<article class="panel reveal">
 				<h2>College Information</h2>
-				<p class="college-name">ABC Institute of Engineering and Technology</p>
-				<p class="college-details">
-					Department of Electronics and Communication Engineering
+				<p class="college-name">
+					<span class="college-icon" aria-hidden="true"><i class="fa-solid fa-building-columns"></i></span>
+					Indira Gandhi Delhi Technical University for Women (IGDTUW)
 				</p>
 				<p class="college-details">
-					Smart City Innovation Lab, India
+					Department: Computer Science and Engineering
+				</p>
+				<p class="college-details">
+					Project Category: IoT Based Smart Safety System
 				</p>
 			</article>
 
@@ -57,20 +63,20 @@
 				<h2>Team Members</h2>
 				<div class="team-list">
 					<div class="member-card">
-						<p class="member-name">Aarav Sharma</p>
-						<p class="member-role">IoT System Design</p>
+						<p class="member-name">Avika Goel</p>
+						<p class="member-role">Frontend Developer</p>
 					</div>
 					<div class="member-card">
-						<p class="member-name">Priya Nair</p>
-						<p class="member-role">Frontend and UX</p>
+						<p class="member-name">Avika Srivastava</p>
+						<p class="member-role">Backend Developer</p>
 					</div>
 					<div class="member-card">
-						<p class="member-name">Rohan Verma</p>
-						<p class="member-role">Backend and API Integration</p>
+						<p class="member-name">Harshita Gupta</p>
+						<p class="member-role">IoT Integration</p>
 					</div>
 					<div class="member-card">
-						<p class="member-name">Meera Singh</p>
-						<p class="member-role">Safety Workflow and Testing</p>
+						<p class="member-name">Jaanvi Choudhary</p>
+						<p class="member-role">UI Designer</p>
 					</div>
 				</div>
 			</article>
@@ -80,13 +86,22 @@
 			<h2>Feedback Form</h2>
 			<form id="feedbackForm" class="feedback-form">
 				<label for="name">Name</label>
-				<input id="name" name="name" type="text" placeholder="Enter your name" required>
+				<div class="field-wrap">
+					<i class="fa-regular fa-user field-icon" aria-hidden="true"></i>
+					<input id="name" name="name" type="text" placeholder="Enter your full name" required>
+				</div>
 
 				<label for="email">Email</label>
-				<input id="email" name="email" type="email" placeholder="Enter your email" required>
+				<div class="field-wrap">
+					<i class="fa-regular fa-envelope field-icon" aria-hidden="true"></i>
+					<input id="email" name="email" type="email" placeholder="Enter your email address" required>
+				</div>
 
 				<label for="message">Feedback</label>
-				<textarea id="message" name="message" rows="5" placeholder="Share your feedback" required></textarea>
+				<div class="field-wrap field-wrap-textarea">
+					<i class="fa-regular fa-message field-icon" aria-hidden="true"></i>
+					<textarea id="message" name="message" rows="5" placeholder="Write your valuable feedback..." required></textarea>
+				</div>
 
 				<button type="submit" class="submit-btn">Send Feedback</button>
 				<p id="formMessage" class="form-message" aria-live="polite"></p>
@@ -94,26 +109,39 @@
 		</section>
 
 		<section class="panel reveal">
-			<h2>Follow Us</h2>
-			<div class="social-row" aria-label="social links">
-				<a href="#" class="social-icon" aria-label="Facebook"><i class="fa-brands fa-facebook-f"></i></a>
-				<a href="#" class="social-icon" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
-				<a href="#" class="social-icon" aria-label="LinkedIn"><i class="fa-brands fa-linkedin-in"></i></a>
-				<a href="#" class="social-icon" aria-label="Twitter"><i class="fa-brands fa-x-twitter"></i></a>
-				<a href="#" class="social-icon" aria-label="YouTube"><i class="fa-brands fa-youtube"></i></a>
+			<h2>Why Contact Us?</h2>
+			<div class="team-list why-contact-list">
+				<div class="member-card why-contact-card">
+					<p class="member-name">Project Collaboration</p>
+					<p class="member-role">Partner with us for research, implementation, and pilot initiatives.</p>
+				</div>
+				<div class="member-card why-contact-card">
+					<p class="member-name">Smart City Deployment</p>
+					<p class="member-role">Plan and deploy scalable safety poles for campuses and public zones.</p>
+				</div>
+				<div class="member-card why-contact-card">
+					<p class="member-name">Women Safety Innovation</p>
+					<p class="member-role">Share new ideas to strengthen real-time emergency response systems.</p>
+				</div>
 			</div>
 		</section>
+
 	</main>
 
 	<footer class="site-footer">
 		<div class="container footer-wrap">
-			<p>2026 SOS Smart Pole. Connected safety for every community.</p>
+			<p>© 2026 SOS Smart Pole | Empowering Safer Communities with Smart Technology</p>
 			<div class="footer-links">
 				<a href="index.html">Home</a>
 				<a href="about.html">About</a>
 			</div>
 		</div>
 	</footer>
+
+	<div id="feedbackPopup" class="feedback-popup" role="status" aria-live="polite" aria-hidden="true">
+		<i class="fa-solid fa-circle-check"></i>
+		<span>Thank you! Your feedback has been submitted.</span>
+	</div>
 
 	<script src="contact.js"></script>
 </body>

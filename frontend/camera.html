@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Smart Camera Surveillance | SOS Smart Pole</title>
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Sora:wght@500;600;700&display=swap" rel="stylesheet">
+	<link rel="stylesheet" href="camera.css">
+</head>
+<body>
+	<header class="site-header">
+		<nav class="navbar container" aria-label="Camera page navigation">
+			<a class="brand" href="index.html" aria-label="Go to homepage">
+				<span class="brand-mark">SOS</span>
+				<span class="brand-text">Smart Pole</span>
+			</a>
+			<div class="nav-links">
+				<a href="index.html">Home</a>
+				<a href="dashboard.html">Dashboard</a>
+				<a href="women-safety.html">Women Safety</a>
+				<a href="lighting.html">Lighting</a>
+				<a href="fire-alert.html">Fire</a>
+				<a href="weather.html">Weather</a>
+				<a href="camera.html">Camera</a>
+				<a href="about.html">About</a>
+				<a href="contact.html">Contact</a>
+				<a class="active" href="camera.html">Camera</a>
+			</div>
+		</nav>
+	</header>
+
+	<main class="container page-main">
+		<section class="hero reveal">
+			<p class="eyebrow">LIVE CAMERA MONITORING</p>
+			<h1>Smart Surveillance Camera</h1>
+			<p>
+				AI powered security camera for women safety, theft detection and public monitoring.
+			</p>
+			<p class="status-badge">Camera connected: live monitoring active</p>
+		</section>
+
+		<section class="info-grid">
+			<article class="panel info-card reveal">
+				<p class="card-title">Camera Status</p>
+				<p class="card-main">HD Camera Online</p>
+				<p class="card-sub">Night vision enabled</p>
+			</article>
+			<article class="panel info-card reveal">
+				<p class="card-title">AI Detection</p>
+				<p class="card-main">No suspicious activity detected</p>
+				<p class="card-sub">Real-time motion analysis active</p>
+			</article>
+		</section>
+
+		<section class="panel reveal">
+			<div class="feed-shell">
+				<div class="feed-overlay left">LIVE</div>
+				<div id="feedClock" class="feed-overlay right">00:00:00</div>
+				<div class="cctv-feed" role="img" aria-label="Live CCTV feed placeholder"></div>
+				<div class="feed-controls">
+					<button class="control-btn" type="button">Start Recording</button>
+					<button class="control-btn" type="button">Capture Snapshot</button>
+					<button id="fullscreenBtn" class="control-btn" type="button">Fullscreen</button>
+				</div>
+			</div>
+		</section>
+
+		<section class="grid-two">
+			<article class="panel reveal">
+				<h2>Recent Events</h2>
+				<ul class="event-list">
+					<li>Motion detected at 10:45 PM</li>
+					<li>Person detected near pole</li>
+					<li>Area secure now</li>
+				</ul>
+			</article>
+
+			<article class="panel reveal">
+				<h2>Analytics</h2>
+				<div class="analytics-grid">
+					<div class="analytic-card">
+						<p class="analytic-label">People Count</p>
+						<p class="analytic-value">2</p>
+					</div>
+					<div class="analytic-card">
+						<p class="analytic-label">Threat Level</p>
+						<p class="analytic-value">Low</p>
+					</div>
+					<div class="analytic-card">
+						<p class="analytic-label">Visibility</p>
+						<p class="analytic-value">Clear</p>
+					</div>
+				</div>
+			</article>
+		</section>
+	</main>
+
+	<footer class="site-footer">
+		<div class="container footer-wrap">
+			<p id="syncText">Last synced few seconds ago</p>
+			<div class="footer-links">
+				<a href="index.html">Home</a>
+				<a href="dashboard.html">Dashboard</a>
+			</div>
+		</div>
+	</footer>
+
+	<script src="camera.js"></script>
+</body>
+</html>
