@@ -1,3 +1,29 @@
+/* Animated live dot for camera status */
+.live-dot {
+	display: inline-block;
+	width: 0.85em;
+	height: 0.85em;
+	margin-right: 0.32em;
+	border-radius: 50%;
+	background: #ff3b3b;
+	box-shadow: 0 0 0 0 rgba(255,59,59,0.7);
+	animation: live-blink 1.1s infinite cubic-bezier(0.66, 0, 0, 1);
+	vertical-align: middle;
+}
+
+@keyframes live-blink {
+	0% { box-shadow: 0 0 0 0 rgba(255,59,59,0.7); opacity: 1; }
+	70% { box-shadow: 0 0 0 8px rgba(255,59,59,0); opacity: 1; }
+	100% { box-shadow: 0 0 0 0 rgba(255,59,59,0); opacity: 0.6; }
+}
+
+.live-text {
+	color: #ff3b3b;
+	font-weight: 600;
+	letter-spacing: 0.04em;
+	font-size: 1em;
+	vertical-align: middle;
+}
 @import url("./theme.css");
 
 :root {
@@ -137,8 +163,10 @@ h1 {
 }
 
 .cctv-feed {
-	height: min(56vw, 420px);
-	min-height: 260px;
+	height: 340px;
+	min-height: 180px;
+	max-width: 340px;
+	margin: 0 auto;
 	border: 1px solid rgba(172, 210, 255, 0.26);
 	border-radius: 0.95rem;
 	background:
@@ -151,6 +179,16 @@ h1 {
 	filter: contrast(1.05) saturate(1.05);
 	position: relative;
 	overflow: hidden;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+/* Make the video fit the box and not overflow */
+.cctv-feed video {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	border-radius: 0.95rem;
+}
 }
 
 .cctv-feed::before {
@@ -186,12 +224,7 @@ h1 {
 	color: #d7efff;
 }
 
-.feed-controls {
-	margin-top: 0.85rem;
-	display: flex;
-	gap: 0.7rem;
-	flex-wrap: wrap;
-}
+/* .feed-controls removed for always-on video */
 
 .control-btn {
 	border: 1px solid rgba(170, 209, 255, 0.36);
