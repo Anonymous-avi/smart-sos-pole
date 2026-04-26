@@ -1,188 +1,339 @@
 
 const express = require("express");
 const cors = require("cors");
-const nodemailer = require("nodemailer");
-const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
+const http = require("http");
+const mqtt = require("mqtt");
+const { SerialPort } = require("serialport");
+const { ReadlineParser } = require("@serialport/parser-readline");
+const { Server } = require("socket.io");
 
-const mqtt = require('mqtt');
-const mongoose = require('mongoose');
 require("dotenv").config();
 
-
 const app = express();
-const PORT = 5000;
+const httpServer = http.createServer(app);
+const io = new Server(httpServer, {
+	cors: {
+		origin: "*",
+		methods: ["GET", "POST"],
+	},
+});
+
+const PORT = Number(process.env.PORT) || 5000;
+const MQTT_BROKER_URL = process.env.MQTT_BROKER_URL || "mqtt://test.mosquitto.org";
+const MQTT_TOPIC = process.env.MQTT_TOPIC || "sos-smart-pole/sensors";
+const SERIAL_PORT_PATH = process.env.SERIAL_PORT || "COM10";
+const SERIAL_BAUD_RATE = Number(process.env.SERIAL_BAUD_RATE) || 9600;
+const SERIAL_RETRY_DELAY_MS = 5000;
+
+let latestSensorData = null;
+let activePort = PORT;
 
 app.use(cors());
 app.use(express.json());
 
-// --- 1. MongoDB Atlas Connection ---
-// Paste your connection string from the MongoDB Atlas Dashboard here
-const ATLAS_URI = "mongodb+srv://avikasrivastava16_db_user:As121620@pole.xk0m57x.mongodb.net/?appName=pole";
+// Parse one Arduino line like:
+// TEMP:28,HUM:60,LDR:Night,FLAME:Safe,TOUCH:Safe,BUZZER:OFF
+function parseSensorLine(line) {
+	const result = {};
+	const pairs = line.split(",");
 
-mongoose.connect(ATLAS_URI)
-    .then(() => console.log("Connected to MongoDB Atlas (Cloud) ☁️✅"))
-    .catch(err => console.error("MongoDB Atlas Connection Error ❌", err));
+	for (const pair of pairs) {
+		const [rawKey, ...rawValueParts] = pair.split(":");
+		if (!rawKey || rawValueParts.length === 0) {
+			continue;
+		}
 
-const sensorSchema = new mongoose.Schema({
-    temperature: Number,
-    humidity: Number,
-    ldr: String,
-    flame: String,
-    touch: String,
-    buzzer: String,
-    timestamp: { type: Date, default: Date.now }
-});
+		const key = rawKey.trim().toUpperCase();
+		const value = rawValueParts.join(":").trim();
 
-const SensorData = mongoose.model('SensorData', sensorSchema);
+		if (key === "TEMP") {
+			result.temperature = Number(value);
+		} else if (key === "HUM") {
+			result.humidity = Number(value);
+		} else if (key === "LDR") {
+			result.ldr = value;
+		} else if (key === "FLAME") {
+			result.flame = value;
+		} else if (key === "TOUCH") {
+			result.touch = value;
+		} else if (key === "BUZZER") {
+			result.buzzer = value;
+		}
+	}
 
-// --- 2. MQTT Client Setup (Port 1883 for local Mosquitto) ---
-const mqttClient = mqtt.connect('mqtt://localhost:1883');
+	if (
+		typeof result.temperature !== "number" ||
+		Number.isNaN(result.temperature) ||
+		typeof result.humidity !== "number" ||
+		Number.isNaN(result.humidity)
+	) {
+		return null;
+	}
 
-mqttClient.on('connect', () => {
-    console.log("Backend connected to Mosquitto Broker 🚀");
-    mqttClient.subscribe('pole/data');
-});
+	return result;
+}
 
-// Handle incoming messages from the Arduino
-mqttClient.on('message', async (topic, message) => {
-    try {
-        const data = JSON.parse(message.toString());
-        
-        // Map Arduino JSON keys to your Database Schema
-        const newEntry = new SensorData({
-            temperature: data.temp,
-            humidity: data.hum || 0,
-            ldr: data.light > 500 ? "Night" : "Day", 
-            flame: data.sos ? "Fire Detected" : "Safe",
-            touch: data.sos ? "SOS Pressed" : "Safe",
-            buzzer: data.sos ? "ON" : "OFF"
-        });
+const mqttClient = mqtt.connect(MQTT_BROKER_URL);
 
-        await newEntry.save();
-        console.log("Real-time data saved to MongoDB Atlas 💾☁️");
-    } catch (err) {
-        console.error("Error processing MQTT message:", err);
-    }
-});
+let serialPort = null;
+let serialParser = null;
+let serialRetryTimer = null;
+let activeSerialPortPath = null;
 
-// --- 3. API Endpoints ---
+function normalizeSensorData(data) {
+	const temperature = Number(data.temperature);
+	const humidity = Number(data.humidity);
+
+	if (Number.isNaN(temperature) || Number.isNaN(humidity)) {
+		return null;
+	}
+
+	return {
+		temperature,
+		humidity,
+		ldr: String(data.ldr || "Unknown"),
+		flame: String(data.flame || "Safe"),
+		touch: String(data.touch || "Safe"),
+		buzzer: String(data.buzzer || "OFF"),
+	};
+}
+
+function parseMqttPayload(payloadText) {
+	// Accept both JSON and CSV payloads.
+	try {
+		const parsedJson = JSON.parse(payloadText);
+		if (parsedJson && parsedJson.source === "backend-serial") {
+			return null;
+		}
+
+		return normalizeSensorData(parsedJson || {});
+	} catch (_error) {
+		return parseSensorLine(payloadText);
+	}
+}
+
+function handleSensorData(data, source = "serial") {
+	latestSensorData = {
+		...data,
+		timestamp: new Date().toISOString(),
+	};
+
+	console.log("Sensor data received", latestSensorData);
+
+	if (source !== "mqtt") {
+		mqttClient.publish(
+			MQTT_TOPIC,
+			JSON.stringify({
+				...latestSensorData,
+				source: "backend-serial",
+			})
+		);
+	}
+
+	io.emit("sensorData", latestSensorData);
+}
 
 app.get("/", (_req, res) => {
-    res.status(200).send("SOS Smart Pole Backend: Cloud Connected");
-});
-
-app.get("/api/sensors", async (_req, res) => {
-       const temperature = Number((Math.random() * (38 - 24) + 24).toFixed(1));
-       const humidity = Number((Math.random() * (80 - 40) + 40).toFixed(1));
-       const ldr = Math.random() > 0.5 ? "Day" : "Night";
-       const flame = Math.random() > 0.85 ? "Fire Detected" : "Safe";
-       const touch = sosActive || Math.random() > 0.9 ? "SOS Pressed" : "Safe";
-       const buzzer = touch === "SOS Pressed" ? "ON" : "OFF";
-
-       let risk = null;
-	       try {
-		       const mlUrl = `https://ml-environment-risk-api.onrender.com/predict?temperature=${temperature}&humidity=${humidity}`;
-		       const mlRes = await fetch(mlUrl);
-		       if (mlRes.ok) {
-			       const mlData = await mlRes.json();
-			       risk = mlData.risk ?? mlData.prediction ?? null;
-		       }
-	       } catch (e) {
-		       risk = null;
-	       }
-
-       const payload = {
-	       temperature,
-	       humidity,
-	       ldr,
-	       flame,
-	       touch,
-	       gps: "28.6139, 77.2090",
-	       buzzer,
-	       risk,
-       };
-
-       res.status(200).json(payload);
-});
-
-app.post("/api/sos", (_req, res) => {
-	sosActive = true;
-
 	res.status(200).json({
-		success: true,
-		message: "SOS activated successfully",
+		message: "SOS Smart Pole backend is running",
+		port: activePort,
 	});
 });
-// Fetch the LATEST sensor reading from Atlas
-app.get("/api/sensors", async (_req, res) => {
-    try {
-        const latestData = await SensorData.findOne().sort({ timestamp: -1 });
-        
-        if (!latestData) {
-            return res.status(404).json({ message: "No data in cloud yet" });
-        }
 
-        res.status(200).json(latestData);
-    } catch (err) {
-        res.status(500).json({ error: "Cloud fetch failed" });
-    }
-});
-
-// Trigger SOS from website
-app.post("/api/sos", (req, res) => {
-    mqttClient.publish('pole/commands', JSON.stringify({ action: "SOS_ON" }));
-    res.status(200).json({ success: true, message: "SOS command published" });
-});
-
-app.post("/api/feedback", async (req, res) => {
-	const { name, email, message } = req.body;
-
-	if (!name || !email || !message) {
-		return res.status(400).json({
-			success: false,
-			message: "Name, email, and feedback message are required.",
+app.get("/api/latest", (_req, res) => {
+	if (!latestSensorData) {
+		return res.status(404).json({
+			message: "No sensor data received yet",
 		});
 	}
 
-	const { EMAIL_USER, EMAIL_PASS } = process.env;
+	return res.status(200).json(latestSensorData);
+});
 
-	if (!EMAIL_USER || !EMAIL_PASS) {
-		return res.status(500).json({
-			success: false,
-			message: "Email service is not configured on server.",
-		});
+mqttClient.on("connect", () => {
+	console.log("MQTT connected");
+	mqttClient.subscribe(MQTT_TOPIC, (error) => {
+		if (error) {
+			console.error(`MQTT subscribe failed for ${MQTT_TOPIC}:`, error.message);
+			return;
+		}
+
+		console.log(`MQTT subscribed to ${MQTT_TOPIC}`);
+	});
+});
+
+mqttClient.on("message", (topic, messageBuffer) => {
+	if (topic !== MQTT_TOPIC) {
+		return;
 	}
 
-	try {
-		const transporter = nodemailer.createTransport({
-			service: "gmail",
-			auth: {
-				user: EMAIL_USER,
-				pass: EMAIL_PASS,
-			},
-		});
+	const payloadText = messageBuffer.toString().trim();
+	if (!payloadText) {
+		return;
+	}
 
-		await transporter.sendMail({
-			from: `"SOS Smart Pole" <${EMAIL_USER}>`,
-			to: "jpothesis@gmail.com",
-			subject: `New SOS Smart Pole Feedback from ${name}`,
-			text: `Name: ${name}\nEmail: ${email}\nFeedback: ${message}`,
-			replyTo: email,
-		});
+	const parsedData = parseMqttPayload(payloadText);
+	if (!parsedData) {
+		return;
+	}
 
-		return res.status(200).json({
-			success: true,
-			message: "Feedback email sent successfully.",
+	handleSensorData(parsedData, "mqtt");
+});
+
+mqttClient.on("error", (error) => {
+	console.error("MQTT error:", error.message);
+});
+
+function isPortBusyError(error) {
+	const message = String(error.message || "").toLowerCase();
+	return error.code === "EACCES" || error.code === "EBUSY" || message.includes("access denied") || message.includes("busy");
+}
+
+function isArduinoCompatiblePort(portInfo) {
+	const vendorId = String(portInfo.vendorId || "").toLowerCase().replace(/^0x/, "");
+	const text = `${portInfo.path || ""} ${portInfo.manufacturer || ""} ${portInfo.friendlyName || ""} ${portInfo.pnpId || ""}`.toLowerCase();
+
+	if (vendorId === "2341" || vendorId === "2a03") {
+		return true;
+	}
+
+	return ["arduino", "usb serial", "wch", "ch340", "cp210", "silicon labs", "ftdi"].some((keyword) => text.includes(keyword));
+}
+
+function scheduleSerialReconnect() {
+	if (serialRetryTimer) {
+		return;
+	}
+
+	serialRetryTimer = setTimeout(() => {
+		serialRetryTimer = null;
+		connectArduinoSerial();
+	}, SERIAL_RETRY_DELAY_MS);
+}
+
+async function resolveSerialPortPath() {
+	const ports = await SerialPort.list();
+	const preferredPath = SERIAL_PORT_PATH.toUpperCase();
+	const preferredPort = ports.find((port) => String(port.path || "").toUpperCase() === preferredPath);
+
+	if (preferredPort) {
+		return preferredPort.path;
+	}
+
+	const compatiblePort = ports.find((port) => isArduinoCompatiblePort(port));
+	if (compatiblePort) {
+		console.log(`Configured port ${SERIAL_PORT_PATH} not found. Using ${compatiblePort.path} automatically.`);
+		return compatiblePort.path;
+	}
+
+	return null;
+}
+
+function connectArduinoSerial() {
+	resolveSerialPortPath()
+		.then((selectedPortPath) => {
+			if (!selectedPortPath) {
+				console.warn("No Arduino-compatible COM port found. Retrying in 5 seconds...");
+				scheduleSerialReconnect();
+				return;
+			}
+
+			serialPort = new SerialPort({
+				path: selectedPortPath,
+				baudRate: SERIAL_BAUD_RATE,
+				autoOpen: false,
+			});
+
+			serialParser = serialPort.pipe(new ReadlineParser({ delimiter: "\n" }));
+
+			serialParser.on("data", (line) => {
+				const cleanedLine = String(line).trim();
+
+				if (!cleanedLine) {
+					return;
+				}
+
+				const parsedData = parseSensorLine(cleanedLine);
+
+				if (!parsedData) {
+					console.warn("Ignoring malformed sensor line:", cleanedLine);
+					return;
+				}
+
+				handleSensorData(parsedData);
+			});
+
+			serialPort.on("error", (error) => {
+				if (isPortBusyError(error)) {
+					console.error("COM port busy. Close Arduino IDE or Serial Monitor.");
+				} else {
+					console.error("Serial port error:", error.message);
+				}
+
+				scheduleSerialReconnect();
+			});
+
+			serialPort.on("close", () => {
+				if (activeSerialPortPath) {
+					console.warn(`Serial connection closed on ${activeSerialPortPath}. Retrying in 5 seconds...`);
+				}
+				activeSerialPortPath = null;
+				scheduleSerialReconnect();
+			});
+
+			serialPort.open((error) => {
+				if (error) {
+					if (isPortBusyError(error)) {
+						console.error("COM port busy. Close Arduino IDE or Serial Monitor.");
+					} else {
+						console.error(`Failed to open serial port ${selectedPortPath}:`, error.message);
+					}
+
+					scheduleSerialReconnect();
+					return;
+				}
+
+				activeSerialPortPath = selectedPortPath;
+				console.log(`Arduino connected on ${activeSerialPortPath}`);
+			});
+		})
+		.catch((error) => {
+			console.error("Failed to detect COM ports:", error.message);
+			scheduleSerialReconnect();
 		});
-	} catch (error) {
-		console.error("Failed to send feedback email:", error.message);
-		return res.status(500).json({
-			success: false,
-			message: "Failed to send feedback email.",
-		});
+}
+
+connectArduinoSerial();
+
+io.on("connection", (socket) => {
+	if (latestSensorData) {
+		socket.emit("sensorData", latestSensorData);
 	}
 });
 
-app.listen(PORT, () => {
-    console.log(`Backend running on http://localhost:${PORT}`);
-});
+function startServer(portToTry) {
+	const onListenError = (error) => {
+		if (error.code === "EADDRINUSE") {
+			if (portToTry === 5000) {
+				console.log("Port 5000 already in use. Trying port 5001...");
+			} else {
+				console.log(`Port ${portToTry} already in use. Trying port ${portToTry + 1}...`);
+			}
+
+			startServer(portToTry + 1);
+			return;
+		}
+
+		console.error("Server failed to start:", error.message);
+		process.exit(1);
+	};
+
+	httpServer.once("error", onListenError);
+	httpServer.listen(portToTry, () => {
+		httpServer.removeListener("error", onListenError);
+		activePort = portToTry;
+		console.log(`Backend running on http://localhost:${activePort}`);
+	});
+}
+
+startServer(PORT);

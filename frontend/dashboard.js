@@ -1,226 +1,267 @@
-const dom = {
-    temperature: document.getElementById("temperatureValue"),
-    humidity: document.getElementById("humidityValue"),
-    ldr: document.getElementById("ldrValue"),
-    flame: document.getElementById("flameValue"),
-    touch: document.getElementById("touchValue"),
-    buzzer: document.getElementById("buzzerValue"),
-    systemStatus: document.getElementById("systemStatus"),
-    eventLog: document.getElementById("eventLog"),
+const BACKEND_URL = "http://localhost:5000";
+const OFFLINE_TIMEOUT_MS = 5000;
+
+const statusBadge = document.getElementById("systemStatus");
+const sosAlertBadge = document.getElementById("sosAlertBadge");
+
+const cardMap = {
+	temperature: {
+		valueId: "temperatureValue",
+		card: document.getElementById("temperatureValue")?.closest("article"),
+		format: (value) => `${value} °C`,
+		state: "normal",
+	},
+	humidity: {
+		valueId: "humidityValue",
+		card: document.getElementById("humidityValue")?.closest("article"),
+		format: (value) => `${value} %`,
+		state: "normal",
+	},
+	ldr: {
+		valueId: "ldrValue",
+		card: document.getElementById("ldrValue")?.closest("article"),
+		format: (value) => value || "Unknown",
+		state: "normal",
+	},
+	flame: {
+		valueId: "flameValue",
+		card: document.getElementById("flameValue")?.closest("article"),
+		format: (value) => value || "Unknown",
+		state: "normal",
+	},
+	touch: {
+		valueId: "touchValue",
+		card: document.getElementById("touchValue")?.closest("article"),
+		format: (value) => value || "Unknown",
+		state: "normal",
+	},
+	buzzer: {
+		valueId: "buzzerValue",
+		card: document.getElementById("buzzerValue")?.closest("article"),
+		format: (value) => value || "OFF",
+		state: "normal",
+	},
 };
 
-const API_BASE_URL = "http://localhost:5000/api";
-
-const state = {
-    temperature: 29.2,
-    humidity: 58,
-    ldrDark: false,
-    flameDetected: false,
-    touchSOS: false,
-    buzzerOn: false,
+const latestValues = {
+	temperature: "0",
+	humidity: "0",
+	ldr: "Unknown",
+	flame: "Unknown",
+	touch: "Unknown",
+	buzzer: "OFF",
 };
 
-const trendData = {
-    labels: [],
-    temperature: [],
-    humidity: [],
-};
+let offlineTimer = null;
+let socketConnected = false;
 
-const MAX_POINTS = 10;
-let environmentChart;
-let safetyChart;
-let wasConnected = false;
-
-function pushEvent(message) {
-    if (!dom.eventLog) return;
-
-    const time = new Date().toLocaleTimeString();
-    const item = document.createElement("li");
-    item.textContent = `${time} - ${message}`;
-    dom.eventLog.prepend(item);
-
-    // Keep log clean (last 10 items)
-    while (dom.eventLog.children.length > 10) {
-        dom.eventLog.removeChild(dom.eventLog.lastChild);
-    }
+function normalizeTouchValue(value) {
+	const safeValue = String(value || "").trim().toLowerCase();
+	if (safeValue === "pressed" || safeValue === "sos pressed") {
+		return "Pressed";
+	}
+	return "Safe";
 }
 
-function setStatusClass(element, statusClass) {
-    if (!element) return;
-    element.classList.remove("is-ok", "is-warning", "is-danger");
-    element.classList.add(statusClass);
+function toggleSosAlert(isActive) {
+	if (!sosAlertBadge) {
+		return;
+	}
+
+	sosAlertBadge.classList.toggle("active", isActive);
 }
 
-function updateSensorCards() {
-    if (!dom.temperature) return;
+function setBadgeState(text, stateClass) {
+	if (!statusBadge) {
+		return;
+	}
 
-    dom.temperature.textContent = `${state.temperature.toFixed(1)} deg C`;
-    dom.humidity.textContent = `${Math.round(state.humidity)}%`;
-    dom.ldr.textContent = state.ldrDark ? "Night" : "Day";
-    dom.flame.textContent = state.flameDetected ? "Fire Detected" : "Safe";
-    dom.touch.textContent = state.touchSOS ? "SOS Pressed" : "Safe";
-    dom.buzzer.textContent = state.buzzerOn ? "ON" : "OFF";
-
-    setStatusClass(dom.temperature, state.temperature > 36 ? "is-warning" : "is-ok");
-    setStatusClass(dom.humidity, state.humidity > 75 ? "is-warning" : "is-ok");
-    setStatusClass(dom.ldr, state.ldrDark ? "is-warning" : "is-ok");
-    setStatusClass(dom.flame, state.flameDetected ? "is-danger" : "is-ok");
-    setStatusClass(dom.touch, state.touchSOS ? "is-danger" : "is-ok");
-    setStatusClass(dom.buzzer, state.buzzerOn ? "is-warning" : "is-ok");
-
-    if (dom.systemStatus) {
-        if (state.flameDetected || state.touchSOS) {
-            dom.systemStatus.textContent = "Alert Active";
-            dom.systemStatus.style.background = "rgba(255, 95, 95, 0.16)";
-            dom.systemStatus.style.borderColor = "rgba(255, 95, 95, 0.46)";
-            dom.systemStatus.style.color = "#ffd2d2";
-        } else {
-            dom.systemStatus.textContent = "System Stable";
-            dom.systemStatus.style.background = "rgba(45, 211, 155, 0.14)";
-            dom.systemStatus.style.borderColor = "rgba(45, 211, 155, 0.4)";
-            dom.systemStatus.style.color = "#b9fbe2";
-        }
-    }
+	statusBadge.textContent = text;
+	statusBadge.classList.remove("is-connected", "is-disconnected", "is-offline");
+	statusBadge.classList.add(stateClass);
 }
 
-function updateTrends() {
-    const now = new Date();
-    const label = `${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}:${String(now.getSeconds()).padStart(2, "0")}`;
-
-    trendData.labels.push(label);
-    trendData.temperature.push(Number(state.temperature.toFixed(1)));
-    trendData.humidity.push(Math.round(state.humidity));
-
-    if (trendData.labels.length > MAX_POINTS) {
-        trendData.labels.shift();
-        trendData.temperature.shift();
-        trendData.humidity.shift();
-    }
-
-    environmentChart.data.labels = trendData.labels;
-    environmentChart.data.datasets[0].data = trendData.temperature;
-    environmentChart.data.datasets[1].data = trendData.humidity;
-    environmentChart.update();
+function markSocketConnected() {
+	socketConnected = true;
+	setBadgeState("Connected", "is-connected");
 }
 
-function updateSafetyChart() {
-    safetyChart.data.datasets[0].data = [
-        state.ldrDark ? 1 : 0,
-        state.flameDetected ? 1 : 0,
-        state.touchSOS ? 1 : 0,
-        state.buzzerOn ? 1 : 0,
-    ];
-    safetyChart.update();
+function markSocketDisconnected() {
+	socketConnected = false;
+	setBadgeState("Device Offline", "is-offline");
 }
 
-function applySensorPayload(sensorData) {
-    state.temperature = Number(sensorData.temperature ?? sensorData.temp ?? state.temperature);
-    state.humidity = Number(sensorData.humidity ?? state.humidity);
-    state.ldrDark = String(sensorData.ldr || "Day").toLowerCase() === "night";
-    state.flameDetected = String(sensorData.flame || "Safe").toLowerCase() === "fire detected";
-    state.touchSOS = String(sensorData.touch || "Safe").toLowerCase() === "sos pressed";
-    state.buzzerOn = String(sensorData.buzzer || "OFF").toUpperCase() === "ON";
-
-    updateSensorCards();
-    updateTrends();
-    updateSafetyChart();
+function markDeviceOffline() {
+	if (socketConnected) {
+		setBadgeState("Device Offline", "is-offline");
+	}
+	applyCardState("offline", ["temperature", "humidity", "ldr", "flame", "touch", "buzzer"]);
 }
 
-async function fetchSensorData() {
-    try {
-        const response = await fetch(`${API_BASE_URL}/sensors`);
-        if (!response.ok) throw new Error(`Status ${response.status}`);
+function resetOfflineTimer() {
+	if (offlineTimer) {
+		clearTimeout(offlineTimer);
+	}
 
-        const sensorData = await response.json();
-        applySensorPayload(sensorData);
-
-        if (!wasConnected) {
-            pushEvent("Connected to backend sensor API.");
-            wasConnected = true;
-        }
-    } catch (error) {
-        if (wasConnected) pushEvent("Sensor API connection lost.");
-        wasConnected = false;
-        if (dom.systemStatus) dom.systemStatus.textContent = "Backend Offline";
-    }
+	offlineTimer = setTimeout(() => {
+		markDeviceOffline();
+	}, OFFLINE_TIMEOUT_MS);
 }
 
-function createCharts() {
-    const envCtx = document.getElementById("environmentChart");
-    const safetyCtx = document.getElementById("safetyChart");
+function applyCardState(state, sensorNames) {
+	for (const sensorName of sensorNames) {
+		const card = cardMap[sensorName]?.card;
+		if (!card) {
+			continue;
+		}
 
-    environmentChart = new Chart(envCtx, {
-        type: "line",
-        data: {
-            labels: trendData.labels,
-            datasets: [
-                {
-                    label: "Temperature",
-                    data: trendData.temperature,
-                    borderColor: "#62d5ff",
-                    backgroundColor: "rgba(98, 213, 255, 0.16)",
-                    borderWidth: 2,
-                    tension: 0.36,
-                    fill: true,
-                },
-                {
-                    label: "Humidity",
-                    data: trendData.humidity,
-                    borderColor: "#9fbcff",
-                    backgroundColor: "rgba(159, 188, 255, 0.14)",
-                    borderWidth: 2,
-                    tension: 0.36,
-                    fill: true,
-                },
-            ],
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: { legend: { labels: { color: "#d5e7ff" } } },
-            scales: {
-                x: { ticks: { color: "#9db8df" }, grid: { color: "rgba(157, 184, 223, 0.15)" } },
-                y: { ticks: { color: "#9db8df" }, grid: { color: "rgba(157, 184, 223, 0.15)" } },
-            },
-        },
-    });
-
-    safetyChart = new Chart(safetyCtx, {
-        type: "bar",
-        data: {
-            labels: ["LDR Dark", "Flame", "Touch SOS", "Buzzer"],
-            datasets: [{
-                label: "State",
-                data: [0, 0, 0, 0],
-                backgroundColor: [
-                    "rgba(255, 209, 102, 0.75)",
-                    "rgba(255, 95, 95, 0.75)",
-                    "rgba(255, 95, 95, 0.75)",
-                    "rgba(87, 178, 255, 0.75)",
-                ],
-                borderRadius: 8,
-            }],
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: { legend: { display: false } },
-            scales: {
-                x: { ticks: { color: "#9db8df" }, grid: { color: "rgba(157, 184, 223, 0.12)" } },
-                y: { min: 0, max: 1, ticks: { stepSize: 1, color: "#9db8df" }, grid: { color: "rgba(157, 184, 223, 0.12)" } },
-            },
-        },
-    });
+		card.dataset.state = state;
+	}
 }
 
-async function initDashboard() {
-    createCharts();
-    updateSensorCards();
-    updateTrends();
-    updateSafetyChart();
-    pushEvent("Waiting for backend sensor feed...");
-    await fetchSensorData();
-    setInterval(fetchSensorData, 2000);
+function pulseValue(valueElement) {
+	if (!valueElement) {
+		return;
+	}
+
+	valueElement.classList.remove("value-pop");
+	void valueElement.offsetWidth;
+	valueElement.classList.add("value-pop");
 }
 
-initDashboard();
+function updateCard(sensorName, rawValue) {
+	const config = cardMap[sensorName];
+	if (!config) {
+		return;
+	}
+
+	const valueElement = document.getElementById(config.valueId);
+	if (!valueElement) {
+		return;
+	}
+
+	const displayValue = config.format(rawValue);
+	valueElement.textContent = displayValue;
+	pulseValue(valueElement);
+	config.card.dataset.state = config.state;
+	latestValues[sensorName] = displayValue;
+}
+
+function getSeverityState(sensorName, value) {
+	if (sensorName === "flame") {
+		return value === "Fire Detected" ? "danger" : "safe";
+	}
+
+	if (sensorName === "touch") {
+		return value === "Pressed" ? "danger" : "safe";
+	}
+
+	if (sensorName === "buzzer") {
+		return value === "ON" ? "danger" : "safe";
+	}
+
+	if (sensorName === "ldr") {
+		return "normal";
+	}
+
+	return "normal";
+}
+
+function updateSensorCards(data) {
+	const normalizedData = {
+		temperature: data.temperature ?? 0,
+		humidity: data.humidity ?? 0,
+		ldr: data.ldr ?? "Unknown",
+		flame: data.flame ?? "Unknown",
+		touch: normalizeTouchValue(data.touch),
+		buzzer: data.buzzer ?? "OFF",
+	};
+
+	updateCard("temperature", normalizedData.temperature);
+	updateCard("humidity", normalizedData.humidity);
+	updateCard("ldr", normalizedData.ldr);
+	updateCard("flame", normalizedData.flame);
+	updateCard("touch", normalizedData.touch);
+	updateCard("buzzer", normalizedData.buzzer);
+
+	for (const [sensorName, rawValue] of Object.entries(normalizedData)) {
+		const card = cardMap[sensorName]?.card;
+		if (!card) {
+			continue;
+		}
+
+		card.dataset.state = getSeverityState(sensorName, rawValue);
+	}
+
+	addEventLog(
+		`Sensor update: T=${normalizedData.temperature}°C, H=${normalizedData.humidity}%, LDR=${normalizedData.ldr}, Flame=${normalizedData.flame}, Touch=${normalizedData.touch}, Buzzer=${normalizedData.buzzer}`
+	);
+	toggleSosAlert(normalizedData.touch === "Pressed");
+	resetOfflineTimer();
+	setBadgeState("Connected", "is-connected");
+}
+
+function addEventLog(message) {
+	const eventLog = document.getElementById("eventLog");
+	if (!eventLog) {
+		return;
+	}
+
+	const item = document.createElement("li");
+	item.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+	eventLog.prepend(item);
+
+	while (eventLog.children.length > 8) {
+		eventLog.removeChild(eventLog.lastElementChild);
+	}
+}
+
+function connectSocket() {
+	if (typeof window.io !== "function") {
+		setBadgeState("Disconnected", "is-disconnected");
+		addEventLog("Socket.IO client is unavailable.");
+		return;
+	}
+
+	const socket = window.io(BACKEND_URL, {
+		transports: ["websocket", "polling"],
+	});
+
+	socket.on("connect", () => {
+		markSocketConnected();
+		addEventLog("Connected to live backend stream.");
+		resetOfflineTimer();
+	});
+
+	socket.on("disconnect", () => {
+		if (offlineTimer) {
+			clearTimeout(offlineTimer);
+		}
+		markSocketDisconnected();
+		toggleSosAlert(false);
+		addEventLog("Disconnected from backend stream.");
+	});
+
+	socket.on("sensorData", (data) => {
+		addEventLog("Live sensor data received.");
+		updateSensorCards(data);
+	});
+
+	socket.on("connect_error", () => {
+		markSocketDisconnected();
+		toggleSosAlert(false);
+	});
+}
+
+function initializeDashboard() {
+	setBadgeState("Device Offline", "is-offline");
+	toggleSosAlert(false);
+	for (const card of Object.values(cardMap).map((entry) => entry.card)) {
+		if (card) {
+			card.dataset.state = "normal";
+		}
+	}
+	connectSocket();
+}
+
+initializeDashboard();
